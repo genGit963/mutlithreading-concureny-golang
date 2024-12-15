@@ -19,7 +19,8 @@ var (
 	green   = color.RGBA{10, 255, 10, 255}
 	boids   [boidCount]*Boid
 	boidMap [screenWidth + 2][screenHeight + 2]int
-	lock    = sync.Mutex{}
+	// lock = sync.Mutex{}
+	rwlock = sync.RWMutex{}
 )
 
 type Game struct{}
