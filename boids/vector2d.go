@@ -11,7 +11,7 @@ func (v1 Vector2d) Add(v2 Vector2d) Vector2d {
 	return Vector2d{X: v1.X + v2.X, Y: v1.Y + v2.Y}
 }
 
-func (v1 Vector2d) Sub(v2 Vector2d) Vector2d {
+func (v1 Vector2d) Subtract(v2 Vector2d) Vector2d {
 	return Vector2d{X: v1.X - v2.X, Y: v1.Y - v2.Y}
 }
 
@@ -23,7 +23,7 @@ func (v1 Vector2d) AddV(d float64) Vector2d {
 	return Vector2d{X: v1.X + d, Y: v1.Y + d}
 }
 
-func (v1 Vector2d) SubV(d float64) Vector2d {
+func (v1 Vector2d) SubtractV(d float64) Vector2d {
 	return Vector2d{X: v1.X - d, Y: v1.Y - d}
 }
 

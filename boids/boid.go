@@ -14,7 +14,7 @@ type Boid struct {
 
 func (b *Boid) calcAccelerationVelocity() Vector2d {
 	upper, lower := b.position.AddV(viewRadius), b.position.AddV(-viewRadius)
-	avgVelocity := Vector2d{X: 0, Y: 0}
+	avgPosition, avgVelocity := Vector2d{X: 0, Y: 0}, Vector2d{X: 0, Y: 0}
 	count := 0.0
 
 	lock.Lock()
@@ -24,6 +24,7 @@ func (b *Boid) calcAccelerationVelocity() Vector2d {
 				if dist := boids[otherBoidId].position.Distance(b.position); dist < viewRadius {
 					count = count + 1
 					avgVelocity = avgVelocity.Add(boids[otherBoidId].velocity)
+					avgPosition = avgPosition.Add(boids[otherBoidId].velocity)
 				}
 			}
 		}
@@ -32,15 +33,20 @@ func (b *Boid) calcAccelerationVelocity() Vector2d {
 
 	accelarationVelocity := Vector2d{X: 0, Y: 0}
 	if count > 0 {
-		avgVelocity = avgVelocity.DivisionV(count)
-		accelarationVelocity = avgVelocity.Sub(b.velocity).MultiplyV(adjRate)
+		avgPosition, avgVelocity = avgPosition.DivisionV(count), avgVelocity.DivisionV(count)
+		accelarationAlignment := avgVelocity.Subtract(b.velocity).MultiplyV(adjRate)
+		accelarationCohesion := avgPosition.Subtract(b.position).MultiplyV(adjRate)
+
+		accelarationVelocity = accelarationVelocity.Add(accelarationAlignment).Add(accelarationCohesion)
 	}
 	return accelarationVelocity
 
 }
 
 func (b *Boid) moveOne() {
-	b.velocity = b.velocity.Add(b.calcAccelerationVelocity()).limit(-1, 1)
+	accelation := b.calcAccelerationVelocity()
+	lock.Lock()
+	b.velocity = b.velocity.Add(accelation).limit(-1, 1)
 	boidMap[int(b.position.X)][int(b.position.Y)] = -1
 	b.position = b.position.Add(b.velocity)
 	boidMap[int(b.position.X)][int(b.position.Y)] = b.id
@@ -53,7 +59,7 @@ func (b *Boid) moveOne() {
 	if next.Y >= screenHeight || next.Y < 0 {
 		b.velocity = Vector2d{X: b.velocity.X, Y: -b.velocity.Y}
 	}
-
+	lock.Unlock()
 }
 
 func (b *Boid) start() {
