@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	screenWidth, screenHeight = 640, 360
+	screenWidth, screenHeight = 440, 240
 	boidCount                 = 500
 	viewRadius                = 13
 	adjRate                   = 0.015
