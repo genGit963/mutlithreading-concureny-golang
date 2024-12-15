@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"math/rand"
 	"time"
 )
@@ -11,10 +12,38 @@ type Boid struct {
 	id       int
 }
 
-func (b *Boid) moveOne() {
-	b.position = b.position.Add(b.velocity)
-	next := b.position.Add(b.velocity)
+func (b *Boid) calcAccelerationVelocity() Vector2d {
+	upper, lower := b.position.AddV(viewRadius), b.position.AddV(-viewRadius)
+	avgVelocity := Vector2d{X: 0, Y: 0}
+	count := 0.0
 
+	for i := math.Max(lower.X, 0); i < math.Min(upper.X, screenWidth); i++ {
+		for j := math.Max(lower.Y, 0); j < math.Min(upper.Y, screenHeight); j++ {
+			if otherBoidId := boidMap[int(i)][int(j)]; otherBoidId != -1 && otherBoidId != b.id {
+				if dist := boids[otherBoidId].position.Distance(b.position); dist < viewRadius {
+					count = count + 1
+					avgVelocity = avgVelocity.Add(boids[otherBoidId].velocity)
+				}
+			}
+		}
+	}
+
+	accelarationVelocity := Vector2d{X: 0, Y: 0}
+	if count > 0 {
+		avgVelocity = avgVelocity.DivisionV(count)
+		accelarationVelocity = avgVelocity.Sub(b.velocity).MultiplyV(adjRate)
+	}
+	return accelarationVelocity
+
+}
+
+func (b *Boid) moveOne() {
+	b.velocity = b.velocity.Add(b.calcAccelerationVelocity()).limit(-1, 1)
+	boidMap[int(b.position.X)][int(b.position.Y)] = -1
+	b.position = b.position.Add(b.velocity)
+	boidMap[int(b.position.X)][int(b.position.Y)] = b.id
+
+	next := b.position.Add(b.velocity)
 	if next.X >= screenWidth || next.X < 0 {
 		b.velocity = Vector2d{X: -b.velocity.X, Y: b.velocity.Y}
 	}
@@ -22,7 +51,7 @@ func (b *Boid) moveOne() {
 	if next.Y >= screenHeight || next.Y < 0 {
 		b.velocity = Vector2d{X: b.velocity.X, Y: -b.velocity.Y}
 	}
-	// fmt.Println("velocity: ", b.id, b.velocity)
+
 }
 
 func (b *Boid) start() {

@@ -27,11 +27,11 @@ func (v1 Vector2d) SubV(d float64) Vector2d {
 	return Vector2d{X: v1.X - d, Y: v1.Y - d}
 }
 
-func (v1 Vector2d) MulV(d float64) Vector2d {
+func (v1 Vector2d) MultiplyV(d float64) Vector2d {
 	return Vector2d{X: v1.X * d, Y: v1.Y * d}
 }
 
-func (v1 Vector2d) Div(d float64) Vector2d {
+func (v1 Vector2d) DivisionV(d float64) Vector2d {
 	return Vector2d{X: v1.X / d, Y: v1.Y / d}
 }
 
@@ -42,6 +42,6 @@ func (v1 Vector2d) limit(lower, upper float64) Vector2d {
 	}
 }
 
-func (v1 Vector2d) distance(v2 Vector2d) float64 {
+func (v1 Vector2d) Distance(v2 Vector2d) float64 {
 	return math.Sqrt(math.Pow(v1.X-v2.X, 2) + math.Pow(v1.Y-v2.Y, 2))
 }
