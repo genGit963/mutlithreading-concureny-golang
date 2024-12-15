@@ -77,6 +77,6 @@ This project is licensed under the ISC License. See the LICENSE file for details
 
 ## Code of Conduct
 
-We welcome contributions from everyone. By participating in this project, you agree to abide by our Code of Conduct, which fosters a welcoming and inclusive environment for all contributors.
+I and then We welcome contributions from everyone. By participating in this project, you agree to abide by our Code of Conduct, which fosters a welcoming and inclusive environment for all contributors.
 
 ---
