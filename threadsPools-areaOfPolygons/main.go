@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"math"
+	"os"
 	"regexp"
 	"strconv"
+	"strings"
+	"time"
 )
 
 type Point2D struct {
@@ -19,7 +22,7 @@ func findArea(pointStr string) {
 
 	var points []Point2D
 	for _, p := range r.FindAllStringSubmatch(pointStr, -1) {
-		fmt.Println("_, p : ", p)
+		// fmt.Println("_, p : ", p)
 		x, _ := strconv.Atoi(p[1])
 		y, _ := strconv.Atoi(p[2])
 
@@ -40,6 +43,16 @@ func findArea(pointStr string) {
 }
 
 func main() {
-	line := "(4,10), (12,8), (10,3), (2,2), (7,5)"
-	findArea(line)
+
+	// read file
+	data, _ := os.ReadFile("/Users/maheshbogati/Desktop/multi-threading-golang/threadsPools-areaOfPolygons/input-text.txt")
+	text := string(data)
+
+	startTime := time.Now()
+	for _, line := range strings.Split(text, "\n") {
+		// fmt.Println("points: ", line)
+		findArea(line)
+	}
+	elapsed := time.Since(startTime)
+	fmt.Println("Done in: ", elapsed)
 }
