@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -19,7 +20,8 @@ const (
 )
 
 var (
-	r = regexp.MustCompile(`\((\d*), (\d*)\)`)
+	r         = regexp.MustCompile(`\((\d*), (\d*)\)`)
+	waitGroup = sync.WaitGroup{}
 )
 
 func findArea(inputChannel chan string) {
@@ -45,6 +47,7 @@ func findArea(inputChannel chan string) {
 
 		fmt.Println("Area of polygon: ", math.Abs(area)/2)
 	}
+	waitGroup.Done()
 }
 
 func main() {
@@ -54,18 +57,22 @@ func main() {
 	text := string(data)
 
 	inputChan := make(chan string, 50) // buffer-size: 50
-
+	// worker threads
 	for i := 0; i < totalWorkerThreads; i++ {
 		go findArea(inputChan)
 	}
+	waitGroup.Add(totalWorkerThreads)
 
 	startTime := time.Now()
-	for _, line := range strings.Split(text, "\n") {
+	for index, line := range strings.Split(text, "\n") {
 		inputChan <- line
+		fmt.Println("passed to buffer: ", index)
 	}
 	close(inputChan)
 
-	elapsed := time.Since(startTime)
+	// wait
+	waitGroup.Wait()
 
+	elapsed := time.Since(startTime)
 	fmt.Println("Done in: ", elapsed)
 }
