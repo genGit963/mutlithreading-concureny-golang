@@ -5,6 +5,7 @@ import (
 	"math"
 	"os"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -16,12 +17,13 @@ type Point2D struct {
 }
 
 const (
-	totalWorkerThreads = 8
+// totalWorkerThreads = 10 // fixed no of threads
 )
 
 var (
-	r         = regexp.MustCompile(`\((\d*), (\d*)\)`)
-	waitGroup = sync.WaitGroup{}
+	r                  = regexp.MustCompile(`\((\d*), (\d*)\)`)
+	waitGroup          = sync.WaitGroup{}
+	totalWorkerThreads = runtime.NumCPU() // dynamic number of own sys threads
 )
 
 func findArea(inputChannel chan string) {
@@ -42,7 +44,7 @@ func findArea(inputChannel chan string) {
 
 		for i := 0; i < arrayLen; i++ {
 			a, b := points[i], points[(i+1)%arrayLen]
-			area += float64(a.X*b.Y) - float64(a.Y-b.X)
+			area += float64(a.X*b.Y) - float64(a.Y*b.X)
 		}
 
 		fmt.Println("Area of polygon: ", math.Abs(area)/2)
@@ -64,9 +66,9 @@ func main() {
 	waitGroup.Add(totalWorkerThreads)
 
 	startTime := time.Now()
-	for index, line := range strings.Split(text, "\n") {
+	for _, line := range strings.Split(text, "\n") {
 		inputChan <- line
-		fmt.Println("passed to buffer: ", index)
+		// fmt.Println("passed to buffer: ", index)
 	}
 	close(inputChan)
 
@@ -75,4 +77,5 @@ func main() {
 
 	elapsed := time.Since(startTime)
 	fmt.Println("Done in: ", elapsed)
+	fmt.Println("Total Active Threads: ", totalWorkerThreads)
 }
